@@ -36,7 +36,11 @@ LinkRanges textParseLinks(const QString &text, bool rich = false);
 
 #include "gui/emoji_config.h"
 
+#ifdef Q_OS_LINUX
 #include "../../../QtStatic/qtbase/src/gui/text/qfontengine_p.h"
+#else
+#include <private/qfontengine_p.h>
+#endif
 
 enum TextBlockType {
 	TextBlockNewline = 0x01,

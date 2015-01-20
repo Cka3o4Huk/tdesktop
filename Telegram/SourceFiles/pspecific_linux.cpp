@@ -33,19 +33,25 @@ Copyright (c) 2014 John Preston, https://desktop.telegram.org
 
 #undef signals
 extern "C" {
-    #include <libappindicator/app-indicator.h>
+    #ifdef Q_OS_LINUX
+        #include <libappindicator/app-indicator.h>
+    #endif
     #include <gtk/gtk.h>
 }
 #define signals public
 
-#include <unity/unity/unity.h>
+#ifdef Q_OS_LINUX
+    #include <unity/unity/unity.h>
+#endif
 
 namespace {
 	bool frameless = true;
 	bool finished = true;
     bool useAppIndicator = false, useStatusIcon = false, trayIconChecked = false, useUnityCount = false;
 
+#ifdef Q_OS_LINUX
     AppIndicator *_trayIndicator = 0;
+#endif
     GtkStatusIcon *_trayIcon = 0;
     GtkWidget *_trayMenu = 0;
     GdkPixbuf *_trayPixbuf = 0;
@@ -105,6 +111,7 @@ namespace {
 
 #define ps_g_signal_connect(instance, detailed_signal, c_handler, data) ps_g_signal_connect_data((instance), (detailed_signal), (c_handler), (data), NULL, (GConnectFlags)0)
 
+#ifdef Q_OS_LINUX
     typedef AppIndicator* (*f_app_indicator_new)(const gchar *id, const gchar *icon_name, AppIndicatorCategory category);
     f_app_indicator_new ps_app_indicator_new = 0;
 
@@ -116,6 +123,7 @@ namespace {
 
     typedef void (*f_app_indicator_set_icon_full)(AppIndicator *self, const gchar *icon_name, const gchar *icon_desc);
     f_app_indicator_set_icon_full ps_app_indicator_set_icon_full = 0;
+#endif
 
     typedef gboolean (*f_gdk_init_check)(gint *argc, gchar ***argv);
     f_gdk_init_check ps_gdk_init_check = 0;
@@ -162,6 +170,7 @@ namespace {
     typedef guint (*f_g_idle_add)(GSourceFunc function, gpointer data);
     f_g_idle_add ps_g_idle_add = 0;
 
+#ifdef Q_OS_LINUX
     typedef void (*f_unity_launcher_entry_set_count)(UnityLauncherEntry* self, gint64 value);
     f_unity_launcher_entry_set_count ps_unity_launcher_entry_set_count = 0;
 
@@ -170,6 +179,7 @@ namespace {
 
     typedef UnityLauncherEntry* (*f_unity_launcher_entry_get_for_desktop_id)(const gchar* desktop_id);
     f_unity_launcher_entry_get_for_desktop_id ps_unity_launcher_entry_get_for_desktop_id = 0;
+#endif
 
     QStringList _initLogs;
 
@@ -326,7 +336,9 @@ namespace {
     public:
         _PsInitializer() {
             setupGTK();
+#ifdef Q_OS_LINUX
             setupUnity();
+#endif
         }
         void setupGTK() {
             int useversion = 3;
@@ -370,6 +382,7 @@ namespace {
             if (!loadFunction(lib_gtk, "g_type_check_instance_cast", ps_g_type_check_instance_cast)) return;
             if (!loadFunction(lib_gtk, "g_signal_connect_data", ps_g_signal_connect_data)) return;
 
+#ifdef Q_OS_LINUX
             if (useversion == 3 && lib_indicator.load()) {
                 _initLogs.push_back(QString("Loaded 'appindicator3' version 1 library"));
                 setupAppIndicator(lib_indicator);
@@ -395,6 +408,7 @@ namespace {
                     }
                 }
             }
+#endif
 
             if (!loadFunction(lib_gtk, "gdk_init_check", ps_gdk_init_check)) return;
             if (!loadFunction(lib_gtk, "gdk_pixbuf_new_from_data", ps_gdk_pixbuf_new_from_data)) return;
@@ -413,6 +427,7 @@ namespace {
             if (!loadFunction(lib_gtk, "g_idle_add", ps_g_idle_add)) return;
             useStatusIcon = true;
         }
+#ifdef Q_OS_LINUX
         void setupAppIndicator(QLibrary &lib_indicator) {
             if (!loadFunction(lib_indicator, "app_indicator_new", ps_app_indicator_new)) return;
             if (!loadFunction(lib_indicator, "app_indicator_set_status", ps_app_indicator_set_status)) return;
@@ -439,6 +454,7 @@ namespace {
             if (!loadFunction(lib_unity, "unity_launcher_entry_set_count_visible", ps_unity_launcher_entry_set_count_visible)) return;
             useUnityCount = true;
         }
+#endif
     };
     _PsInitializer _psInitializer;
 
@@ -456,7 +472,9 @@ namespace {
 	};
     _PsEventFilter *_psEventFilter = 0;
 
+#ifdef Q_OS_LINUX
     UnityLauncherEntry *_psUnityLauncherEntry = 0;
+#endif
 };
 
 PsMainWindow::PsMainWindow(QWidget *parent) : QMainWindow(parent),
@@ -573,6 +591,7 @@ void PsMainWindow::psSetupTrayIcon() {
 void PsMainWindow::psUpdateWorkmode() {
     if (!cSupportTray()) return;
 
+#ifdef Q_OS_LINUX
     if (cWorkMode() == dbiwmWindowOnly) {
         if (useAppIndicator) {
             ps_app_indicator_set_status(_trayIndicator, APP_INDICATOR_STATUS_PASSIVE);
@@ -586,10 +605,16 @@ void PsMainWindow::psUpdateWorkmode() {
             ps_gtk_status_icon_set_visible(_trayIcon, true);
         }
     }
+#else
+    if(useStatusIcon) {
+        ps_gtk_status_icon_set_visible(_trayIcon, (cWorkMode() == dbiwmWindowOnly));
+    }
+#endif
     setWindowIcon(wndIcon);
 }
 
 void PsMainWindow::psUpdateIndicator() {
+#ifdef Q_OS_LINUX
     _psUpdateIndicatorTimer.stop();
     _psLastIndicatorUpdate = getms();
     QFileInfo f(_trayIconImageFile());
@@ -600,6 +625,7 @@ void PsMainWindow::psUpdateIndicator() {
     } else {
         useAppIndicator = false;
     }
+#endif
 }
 
 void PsMainWindow::psUpdateCounter() {
@@ -608,6 +634,7 @@ void PsMainWindow::psUpdateCounter() {
 	int32 counter = App::histories().unreadFull;
 
     setWindowTitle((counter > 0) ? qsl("Telegram (%1)").arg(counter) : qsl("Telegram"));
+#ifdef Q_OS_LINUX
     if (_psUnityLauncherEntry) {
         if (counter > 0) {
             ps_unity_launcher_entry_set_count(_psUnityLauncherEntry, (counter > 9999) ? 9999 : counter);
@@ -623,7 +650,9 @@ void PsMainWindow::psUpdateCounter() {
         } else if (!_psUpdateIndicatorTimer.isActive()) {
             _psUpdateIndicatorTimer.start(100);
         }
-    } else if (useStatusIcon && trayIconChecked) {
+    } else 
+#endif
+    if (useStatusIcon && trayIconChecked) {
         loadPixbuf(_trayIconImageGen());
         ps_gtk_status_icon_set_from_pixbuf(_trayIcon, _trayPixbuf);
     }
@@ -731,6 +760,7 @@ void PsMainWindow::psStateChanged(Qt::WindowState state) {
 }
 
 void PsMainWindow::psCreateTrayIcon() {
+#ifdef Q_OS_LINUX
     if (useAppIndicator) {
         DEBUG_LOG(("Trying to create AppIndicator"));
         if (ps_gtk_init_check(0, 0)) {
@@ -766,6 +796,7 @@ void PsMainWindow::psCreateTrayIcon() {
             useAppIndicator = false;
         }
     }
+#endif
     if (useStatusIcon) {
         if (ps_gtk_init_check(0, 0) && ps_gdk_init_check(0, 0)) {
             if (!_trayMenu) _trayMenu = ps_gtk_menu_new();
@@ -809,6 +840,7 @@ void PsMainWindow::psCreateTrayIcon() {
 void PsMainWindow::psFirstShow() {
     psCreateTrayIcon();
 
+#ifdef Q_OS_LINUX
     if (useUnityCount) {
         _psUnityLauncherEntry = ps_unity_launcher_entry_get_for_desktop_id("telegramdesktop.desktop");
         if (_psUnityLauncherEntry) {
@@ -824,6 +856,7 @@ void PsMainWindow::psFirstShow() {
     } else {
         LOG(("Not using Unity Launcher count."));
     }
+#endif
 
     finished = false;
 
@@ -1309,7 +1342,7 @@ void PsUpdateDownloader::unpackUpdate() {
 			bool executable = false;
 
 			stream >> relativeName >> fileSize >> fileInnerData;
-#if defined Q_OS_MAC || defined Q_OS_LINUX
+#if defined Q_OS_MAC || defined Q_OS_LINUX || defined Q_OS_FREEBSD
 			stream >> executable;
 #endif
 			if (stream.status() != QDataStream::Ok) {
@@ -1465,7 +1498,7 @@ int psFixPrevious() {
 	return 0;
 }
 
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD)
 bool moveFile(const char *from, const char *to) {
     FILE *ffrom = fopen(from, "rb"), *fto = fopen(to, "wb");
     if (!ffrom) {
@@ -1548,7 +1581,7 @@ bool psCheckReadyUpdate() {
 #elif defined Q_OS_MAC
 	QString curUpdater = (cExeDir() + "Telegram.app/Contents/Frameworks/Updater");
 	QFileInfo updater(cWorkingDir() + "tupdates/ready/Telegram.app/Contents/Frameworks/Updater");
-#elif defined Q_OS_LINUX
+#elif defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD)
     QString curUpdater = (cExeDir() + "Updater");
     QFileInfo updater(cWorkingDir() + "tupdates/ready/Updater");
 #endif
@@ -1579,7 +1612,7 @@ bool psCheckReadyUpdate() {
 		PsUpdateDownloader::clearAll();
 		return false;
 	}
-#elif defined Q_OS_LINUX
+#elif ddefined(Q_OS_LINUX) || defined(Q_OS_FREEBSD)
     if (!moveFile(QFile::encodeName(updater.absoluteFilePath()).constData(), QFile::encodeName(curUpdater).constData())) {
         PsUpdateDownloader::clearAll();
         return false;

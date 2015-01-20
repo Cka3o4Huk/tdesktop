@@ -2938,6 +2938,7 @@ TextBlock::TextBlock(const style::font &font, const QString &str, QFixed minResi
 		if (flags & TextBlockItalic) blockFont = blockFont->italic();
 		if (flags & TextBlockUnderline) blockFont = blockFont->underline();
 
+#ifdef Q_OS_LINUX
 		QStackTextEngine engine(str.mid(_from, length), blockFont->f);
 		engine.itemize();
 
@@ -2946,6 +2947,13 @@ TextBlock::TextBlock(const style::font &font, const QString &str, QFixed minResi
 		layout.createLine();
 
 		BlockParser parser(&engine, this, minResizeWidth, _from);
+#else
+		QTextLayout layout(str.mid(_from, length), blockFont->f);
+		layout.beginLayout();
+		layout.createLine();
+ 
+		BlockParser parser(layout.engine(), this, minResizeWidth, _from);
+#endif
 
 		layout.endLayout();
 	}

@@ -24,35 +24,45 @@ macx {
     QMAKE_LFLAGS += -framework Cocoa
 }
 
-linux {
+linux|freebsd {
     SOURCES += ./SourceFiles/pspecific_linux.cpp
     HEADERS += ./SourceFiles/pspecific_linux.h
 }
 
+WRKPREFIX = ./../..
+METASTYLEPREFIX = ./../DebugStyle
+METALANGPREFIX  = ./../DebugLang
+
+freebsd {
+    WRKPREFIX = ./
+    METASTYLEPREFIX = /usr/local/bin
+    METALANGPREFIX = /usr/local/bin
+}
+
 style_auto_cpp.target = ./GeneratedFiles/style_auto.cpp
 style_auto_cpp.depends = FORCE
-style_auto_cpp.commands = mkdir -p ./../../Telegram/GeneratedFiles && ./../DebugStyle/MetaStyle -classes_in ./../../Telegram/Resources/style_classes.txt -classes_out ./../../Telegram/GeneratedFiles/style_classes.h -styles_in ./../../Telegram/Resources/style.txt -styles_out ./../../Telegram/GeneratedFiles/style_auto.h -path_to_sprites ./../../Telegram/SourceFiles/art/
-style_auto_cpp.depends = ./../../Telegram/Resources/style.txt ./../../Telegram/Resources/style_classes.txt
+style_auto_cpp.commands = mkdir -p ${WRKPREFIX}/Telegram/GeneratedFiles && ${METASTYLEPREFIX}/MetaStyle -classes_in ${WRKPREFIX}/Telegram/Resources/style_classes.txt -classes_out ${WRKPREFIX}/Telegram/GeneratedFiles/style_classes.h -styles_in ${WRKPREFIX}/Telegram/Resources/style.txt -styles_out ${WRKPREFIX}/Telegram/GeneratedFiles/style_auto.h -path_to_sprites ${WRKPREFIX}/Telegram/SourceFiles/art/
+style_auto_cpp.depends = ${WRKPREFIX}/Telegram/Resources/style.txt ${WRKPREFIX}/Telegram/Resources/style_classes.txt
 
 style_auto_h.target = ./GeneratedFiles/style_auto.h
 style_auto_h.depends = FORCE
-style_auto_h.commands = mkdir -p ./../../Telegram/GeneratedFiles && ./../DebugStyle/MetaStyle -classes_in ./../../Telegram/Resources/style_classes.txt -classes_out ./../../Telegram/GeneratedFiles/style_classes.h -styles_in ./../../Telegram/Resources/style.txt -styles_out ./../../Telegram/GeneratedFiles/style_auto.h -path_to_sprites ./../../Telegram/SourceFiles/art/
-style_auto_h.depends = ./../../Telegram/Resources/style.txt ./../../Telegram/Resources/style_classes.txt
+style_auto_h.commands = mkdir -p ${WRKPREFIX}/Telegram/GeneratedFiles && ${METASTYLEPREFIX}/MetaStyle -classes_in ${WRKPREFIX}/Telegram/Resources/style_classes.txt -classes_out ${WRKPREFIX}/Telegram/GeneratedFiles/style_classes.h -styles_in ${WRKPREFIX}/Telegram/Resources/style.txt -styles_out ${WRKPREFIX}/Telegram/GeneratedFiles/style_auto.h -path_to_sprites ${WRKPREFIX}/Telegram/SourceFiles/art/
+style_auto_h.depends = ${WRKPREFIX}/Telegram/Resources/style.txt ${WRKPREFIX}/Telegram/Resources/style_classes.txt
 
 style_classes_h.target = ./GeneratedFiles/style_classes.h
 style_classes_h.depends = FORCE
-style_classes_h.commands = mkdir -p ./../../Telegram/GeneratedFiles && ./../DebugStyle/MetaStyle -classes_in ./../../Telegram/Resources/style_classes.txt -classes_out ./../../Telegram/GeneratedFiles/style_classes.h -styles_in ./../../Telegram/Resources/style.txt -styles_out ./../../Telegram/GeneratedFiles/style_auto.h -path_to_sprites ./../../Telegram/SourceFiles/art/
-style_classes_h.depends = ./../../Telegram/Resources/style.txt ./../../Telegram/Resources/style_classes.txt
+style_classes_h.commands = mkdir -p ${WRKPREFIX}/Telegram/GeneratedFiles && ${METASTYLEPREFIX}/MetaStyle -classes_in ${WRKPREFIX}/Telegram/Resources/style_classes.txt -classes_out ${WRKPREFIX}/Telegram/GeneratedFiles/style_classes.h -styles_in ${WRKPREFIX}/Telegram/Resources/style.txt -styles_out ${WRKPREFIX}/Telegram/GeneratedFiles/style_auto.h -path_to_sprites ${WRKPREFIX}/Telegram/SourceFiles/art/
+style_classes_h.depends = ${WRKPREFIX}/Telegram/Resources/style.txt ${WRKPREFIX}/Telegram/Resources/style_classes.txt
 
 lang_auto_cpp.target = ./GeneratedFiles/lang_auto.cpp
 lang_auto_cpp.depends = FORCE
-lang_auto_cpp.commands = mkdir -p ./../../Telegram/GeneratedFiles && ./../DebugLang/MetaLang -lang_in ./../../Telegram/Resources/lang.strings -lang_out ./../../Telegram/GeneratedFiles/lang_auto
-lang_auto_cpp.depends = ./../../Telegram/Resources/lang.strings
+lang_auto_cpp.commands = mkdir -p ${WRKPREFIX}/Telegram/GeneratedFiles && ${METALANGPREFIX}/MetaLang -lang_in ${WRKPREFIX}/Telegram/Resources/lang.strings -lang_out ${WRKPREFIX}/Telegram/GeneratedFiles/lang_auto
+lang_auto_cpp.depends = ${WRKPREFIX}/Telegram/Resources/lang.strings
 
 lang_auto_h.target = ./GeneratedFiles/lang_auto.h
 lang_auto_h.depends = FORCE
-lang_auto_h.commands = mkdir -p ./../../Telegram/GeneratedFiles && ./../DebugLang/MetaLang -lang_in ./../../Telegram/Resources/lang.strings -lang_out ./../../Telegram/GeneratedFiles/lang_auto
-lang_auto_h.depends = ./../../Telegram/Resources/lang.strings
+lang_auto_h.commands = mkdir -p ${WRKPREFIX}/Telegram/GeneratedFiles && ${METALANGPREFIX}/MetaLang -lang_in ${WRKPREFIX}/Telegram/Resources/lang.strings -lang_out ${WRKPREFIX}/Telegram/GeneratedFiles/lang_auto
+lang_auto_h.depends = ${WRKPREFIX}/Telegram/Resources/lang.strings
 
 hook.depends = style_auto_cpp style_auto_h style_classes_h lang_auto_cpp lang_auto_h
 CONFIG(debug,debug|release):hook.target = Makefile.Debug
@@ -68,10 +78,10 @@ unix {
     linux-g++-64:QMAKE_TARGET.arch = x86_64
 
     contains(QMAKE_TARGET.arch, x86_64) {
-        CONFIG(release,debug|release):QMAKE_PRE_LINK = ./../../Telegram/FixMake.sh
+        CONFIG(release,debug|release):QMAKE_PRE_LINK = ${WRKPREFIX}/Telegram/FixMake.sh
         DEFINES += Q_OS_LINUX64
     } else {
-        CONFIG(release,debug|release):QMAKE_PRE_LINK = ./../../Telegram/FixMake32.sh
+        CONFIG(release,debug|release):QMAKE_PRE_LINK = ${WRKPREFIX}/Telegram/FixMake32.sh
         DEFINES += Q_OS_LINUX32
     }
 }
@@ -264,30 +274,54 @@ CONFIG(release, debug|release) {
     QMAKE_LFLAGS_RELEASE += -Ofast -flto
 }
 
-INCLUDEPATH += ./../../Libraries/QtStatic/qtbase/include/QtGui/5.3.1/QtGui\
-               ./../../Libraries/QtStatic/qtbase/include/QtCore/5.3.1/QtCore\
-               ./../../Libraries/QtStatic/qtbase/include\
-               /usr/local/include/opus\
+freebsd {
+	INCLUDEPATH += /usr/local/include/qt5/QtGui/5.3.2/QtGui\
+		           /usr/local/include/qt5/QtCore/5.3.2/QtCore
+	
+	INCLUDEPATH += "/usr/local/include/gtk-2.0"
+	INCLUDEPATH += "/usr/local/include/glib-2.0"
+	INCLUDEPATH += "/usr/local/lib/glib-2.0/include/"
+	INCLUDEPATH += "/usr/local/include/cairo"
+	INCLUDEPATH += "/usr/local/include/pango-1.0"
+	INCLUDEPATH += "/usr/local/lib/gtk-2.0/include/"
+	INCLUDEPATH += "/usr/local/include/gdk-pixbuf-2.0"
+	INCLUDEPATH += "/usr/local/include/atk-1.0"
+}
+
+INCLUDEPATH += /usr/local/include/opus\
                ./SourceFiles\
                ./GeneratedFiles
 
-INCLUDEPATH += "/usr/include/libappindicator-0.1"
-INCLUDEPATH += "/usr/include/gtk-2.0"
-INCLUDEPATH += "/usr/include/glib-2.0"
-INCLUDEPATH += "/usr/lib/x86_64-linux-gnu/glib-2.0/include"
-INCLUDEPATH += "/usr/lib/i386-linux-gnu/glib-2.0/include"
-INCLUDEPATH += "/usr/include/cairo"
-INCLUDEPATH += "/usr/include/pango-1.0"
-INCLUDEPATH += "/usr/lib/x86_64-linux-gnu/gtk-2.0/include"
-INCLUDEPATH += "/usr/lib/i386-linux-gnu/gtk-2.0/include"
-INCLUDEPATH += "/usr/include/gdk-pixbuf-2.0"
-INCLUDEPATH += "/usr/include/atk-1.0"
+!freebsd {
+	INCLUDEPATH += ./../../Libraries/QtStatic/qtbase/include/QtGui/5.3.1/QtGui\
+		           ./../../Libraries/QtStatic/qtbase/include/QtCore/5.3.1/QtCore\
+		           ./../../Libraries/QtStatic/qtbase/include
 
-INCLUDEPATH += "/usr/include/dee-1.0"
-INCLUDEPATH += "/usr/include/libdbusmenu-glib-0.4"
+	INCLUDEPATH += "/usr/include/libappindicator-0.1"
+	INCLUDEPATH += "/usr/include/gtk-2.0"
+	INCLUDEPATH += "/usr/include/glib-2.0"
+	INCLUDEPATH += "/usr/lib/x86_64-linux-gnu/glib-2.0/include"
+	INCLUDEPATH += "/usr/lib/i386-linux-gnu/glib-2.0/include"
+	INCLUDEPATH += "/usr/include/cairo"
+	INCLUDEPATH += "/usr/include/pango-1.0"
+	INCLUDEPATH += "/usr/lib/x86_64-linux-gnu/gtk-2.0/include"
+	INCLUDEPATH += "/usr/lib/i386-linux-gnu/gtk-2.0/include"
+	INCLUDEPATH += "/usr/include/gdk-pixbuf-2.0"
+	INCLUDEPATH += "/usr/include/atk-1.0"
 
-LIBS += -lcrypto -lssl -lz -ldl -llzma -lexif -lopus -lopusfile -logg -lopenal
-LIBS += ./../../../Libraries/QtStatic/qtbase/plugins/platforminputcontexts/libcomposeplatforminputcontextplugin.a
+	INCLUDEPATH += "/usr/include/dee-1.0"
+	INCLUDEPATH += "/usr/include/libdbusmenu-glib-0.4"
+}
+
+LIBS += -lcrypto -lssl -lz -llzma -lexif -lopus -lopusfile -logg -lopenal
+!freebsd {
+	LIBS += -ldl
+	LIBS += ./../../../Libraries/QtStatic/qtbase/plugins/platforminputcontexts/libcomposeplatforminputcontextplugin.a
+}
+
+freebsd {
+	LIBS += /usr/local/lib/qt5/plugins/platforminputcontexts/libcomposeplatforminputcontextplugin.so
+}
 
 RESOURCES += \
     ./SourceFiles/telegram_linux.qrc

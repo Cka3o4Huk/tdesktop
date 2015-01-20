@@ -25,7 +25,7 @@ Copyright (c) 2014 John Preston, https://desktop.telegram.org
 #include "pspecific_mac.h"
 #endif
 
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD)
 #include "pspecific_linux.h"
 #endif
 
