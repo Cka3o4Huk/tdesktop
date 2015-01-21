@@ -334,9 +334,9 @@ QPixmap Image::pixNoCache(int32 w, int32 h, bool smooth) const {
 	loaded();
 
 	const QPixmap &p(pixData());
-	if (p.isNull()) {
+/*	if (p.isNull()) {
 		return blank()->pix();
-	}
+	} */
 	if (w <= 0 || !width() || !height() || (w == width() && (h <= 0 || h == height()))) return p;
 	if (h <= 0) {
 		return QPixmap::fromImage(p.toImage().scaledToWidth(w, smooth ? Qt::SmoothTransformation : Qt::FastTransformation), Qt::ColorOnly);

@@ -1612,7 +1612,7 @@ bool psCheckReadyUpdate() {
 		PsUpdateDownloader::clearAll();
 		return false;
 	}
-#elif ddefined(Q_OS_LINUX) || defined(Q_OS_FREEBSD)
+#elif defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD)
     if (!moveFile(QFile::encodeName(updater.absoluteFilePath()).constData(), QFile::encodeName(curUpdater).constData())) {
         PsUpdateDownloader::clearAll();
         return false;
