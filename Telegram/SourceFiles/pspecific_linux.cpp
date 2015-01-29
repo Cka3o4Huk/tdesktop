@@ -377,27 +377,21 @@ namespace {
             if (!loadFunction(lib_gtk, "g_type_check_instance_cast", ps_g_type_check_instance_cast)) return;
             if (!loadFunction(lib_gtk, "g_signal_connect_data", ps_g_signal_connect_data)) return;
 
-<<<<<<< HEAD
-#ifdef Q_OS_LINUX
-            if (useversion == 3 && lib_indicator.load()) {
-                _initLogs.push_back(QString("Loaded 'appindicator3' version 1 library"));
-                setupAppIndicator(lib_indicator);
-            } else {
-                lib_indicator.setFileNameAndVersion(QLatin1String("appindicator3"), QString());
-                if (useversion == 3 && lib_indicator.load()) {
-                    _initLogs.push_back(QString("Loaded 'appindicator3' without version library"));
-=======
             useGtkBase = true;
             std::cout << "loaded gtk funcs!\n";
         }
 
         void setupAppIndicator(QLibrary &lib_indicator) {
+#if !defined(Q_OS_FREEBSD)
             if (!loadFunction(lib_indicator, "app_indicator_new", ps_app_indicator_new)) return;
             if (!loadFunction(lib_indicator, "app_indicator_set_status", ps_app_indicator_set_status)) return;
             if (!loadFunction(lib_indicator, "app_indicator_set_menu", ps_app_indicator_set_menu)) return;
             if (!loadFunction(lib_indicator, "app_indicator_set_icon_full", ps_app_indicator_set_icon_full)) return;
             useAppIndicator = true;
             std::cout << "loaded appindicator funcs!\n";
+#else
+            return;
+#endif
         }
 
         void setupGtk() {
@@ -405,7 +399,6 @@ namespace {
             if (loadLibrary(lib_indicator, "appindicator3", 1)) {
                 if (loadLibrary(lib_gtk, "gtk-3", 0)) {
                     setupGtkBase(lib_gtk);
->>>>>>> base/master
                     setupAppIndicator(lib_indicator);
                 }
             }
@@ -416,11 +409,13 @@ namespace {
                         setupGtkBase(lib_gtk);
                         setupAppIndicator(lib_indicator);
                     }
+                }else{
+                	if(!loadLibrary(lib_gtk, "gtk-3", 0)){
+                		loadLibrary(lib_gtk, "gtk-x11-2.0", 0);
+                	}
                 }
             }
-<<<<<<< HEAD
-#endif
-=======
+
             if (!useGtkBase && lib_gtk.isLoaded()) {
                 std::cout << "no appindicator, trying to load gtk..\n";
                 setupGtkBase(lib_gtk);
@@ -431,7 +426,6 @@ namespace {
                 std::cout << "no appindicator :(\n";
                 return;
             }
->>>>>>> base/master
 
             if (!loadFunction(lib_gtk, "gdk_init_check", ps_gdk_init_check)) return;
             if (!loadFunction(lib_gtk, "gdk_pixbuf_new_from_data", ps_gdk_pixbuf_new_from_data)) return;
@@ -451,20 +445,10 @@ namespace {
             useStatusIcon = true;
             std::cout << "status icon api loaded\n";
         }
-<<<<<<< HEAD
-#ifdef Q_OS_LINUX
-        void setupAppIndicator(QLibrary &lib_indicator) {
-            if (!loadFunction(lib_indicator, "app_indicator_new", ps_app_indicator_new)) return;
-            if (!loadFunction(lib_indicator, "app_indicator_set_status", ps_app_indicator_set_status)) return;
-            if (!loadFunction(lib_indicator, "app_indicator_set_menu", ps_app_indicator_set_menu)) return;
-            if (!loadFunction(lib_indicator, "app_indicator_set_icon_full", ps_app_indicator_set_icon_full)) return;
-            useAppIndicator = true;
-        }
-=======
 
->>>>>>> base/master
         void setupUnity() {
-            QLibrary lib_unity(QLatin1String("unity"), 9, 0);
+#if !defined(Q_OS_FREEBSD)
+        	QLibrary lib_unity(QLatin1String("unity"), 9, 0);
             if (!loadLibrary(lib_unity, "unity", 9)) return;
 
             if (!loadFunction(lib_unity, "unity_launcher_entry_get_for_desktop_id", ps_unity_launcher_entry_get_for_desktop_id)) return;
@@ -472,8 +456,10 @@ namespace {
             if (!loadFunction(lib_unity, "unity_launcher_entry_set_count_visible", ps_unity_launcher_entry_set_count_visible)) return;
             useUnityCount = true;
             std::cout << "unity count api loaded\n";
-        }
+#else
+            return;
 #endif
+        }
     };
     _PsInitializer _psInitializer;
 
