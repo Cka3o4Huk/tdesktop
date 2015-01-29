@@ -39,27 +39,27 @@ freebsd {
     METALANGPREFIX = /usr/local/bin
 }
 
-style_auto_cpp.target = ./GeneratedFiles/style_auto.cpp
+style_auto_cpp.target = $${WRKPREFIX}/Telegram/GeneratedFiles/style_auto.cpp
 style_auto_cpp.depends = FORCE
 style_auto_cpp.commands = mkdir -p $${WRKPREFIX}/Telegram/GeneratedFiles && $${METASTYLEPREFIX}/MetaStyle -classes_in $${WRKPREFIX}/Telegram/Resources/style_classes.txt -classes_out $${WRKPREFIX}/Telegram/GeneratedFiles/style_classes.h -styles_in $${WRKPREFIX}/Telegram/Resources/style.txt -styles_out $${WRKPREFIX}/Telegram/GeneratedFiles/style_auto.h -path_to_sprites $${WRKPREFIX}/Telegram/SourceFiles/art/
 style_auto_cpp.depends = $${WRKPREFIX}/Telegram/Resources/style.txt $${WRKPREFIX}/Telegram/Resources/style_classes.txt
 
-style_auto_h.target = ./GeneratedFiles/style_auto.h
+style_auto_h.target = $${WRKPREFIX}/Telegram/GeneratedFiles/style_auto.h
 style_auto_h.depends = FORCE
 style_auto_h.commands = mkdir -p $${WRKPREFIX}/Telegram/GeneratedFiles && $${METASTYLEPREFIX}/MetaStyle -classes_in $${WRKPREFIX}/Telegram/Resources/style_classes.txt -classes_out $${WRKPREFIX}/Telegram/GeneratedFiles/style_classes.h -styles_in $${WRKPREFIX}/Telegram/Resources/style.txt -styles_out $${WRKPREFIX}/Telegram/GeneratedFiles/style_auto.h -path_to_sprites $${WRKPREFIX}/Telegram/SourceFiles/art/
 style_auto_h.depends = $${WRKPREFIX}/Telegram/Resources/style.txt $${WRKPREFIX}/Telegram/Resources/style_classes.txt
 
-style_classes_h.target = ./GeneratedFiles/style_classes.h
+style_classes_h.target = $${WRKPREFIX}/Telegram/GeneratedFiles/style_classes.h
 style_classes_h.depends = FORCE
 style_classes_h.commands = mkdir -p $${WRKPREFIX}/Telegram/GeneratedFiles && $${METASTYLEPREFIX}/MetaStyle -classes_in $${WRKPREFIX}/Telegram/Resources/style_classes.txt -classes_out $${WRKPREFIX}/Telegram/GeneratedFiles/style_classes.h -styles_in $${WRKPREFIX}/Telegram/Resources/style.txt -styles_out $${WRKPREFIX}/Telegram/GeneratedFiles/style_auto.h -path_to_sprites $${WRKPREFIX}/Telegram/SourceFiles/art/
 style_classes_h.depends = $${WRKPREFIX}/Telegram/Resources/style.txt $${WRKPREFIX}/Telegram/Resources/style_classes.txt
 
-lang_auto_cpp.target = ./GeneratedFiles/lang_auto.cpp
+lang_auto_cpp.target = $${WRKPREFIX}/Telegram/GeneratedFiles/lang_auto.cpp
 lang_auto_cpp.depends = FORCE
 lang_auto_cpp.commands = mkdir -p $${WRKPREFIX}/Telegram/GeneratedFiles && $${METALANGPREFIX}/MetaLang -lang_in $${WRKPREFIX}/Telegram/Resources/lang.strings -lang_out $${WRKPREFIX}/Telegram/GeneratedFiles/lang_auto
 lang_auto_cpp.depends = $${WRKPREFIX}/Telegram/Resources/lang.strings
 
-lang_auto_h.target = ./GeneratedFiles/lang_auto.h
+lang_auto_h.target = $${WRKPREFIX}/Telegram/GeneratedFiles/lang_auto.h
 lang_auto_h.depends = FORCE
 lang_auto_h.commands = mkdir -p $${WRKPREFIX}/Telegram/GeneratedFiles && $${METALANGPREFIX}/MetaLang -lang_in $${WRKPREFIX}/Telegram/Resources/lang.strings -lang_out $${WRKPREFIX}/Telegram/GeneratedFiles/lang_auto
 lang_auto_h.depends = $${WRKPREFIX}/Telegram/Resources/lang.strings
@@ -70,7 +70,7 @@ CONFIG(release,debug|release):hook.target = Makefile.Release
 
 QMAKE_EXTRA_TARGETS += style_auto_cpp style_auto_h style_classes_h lang_auto_cpp lang_auto_h hook
 
-PRE_TARGETDEPS += ./GeneratedFiles/style_auto.cpp ./GeneratedFiles/style_auto.h ./GeneratedFiles/style_classes.h ./GeneratedFiles/lang_auto.h ./GeneratedFiles/lang_auto.cpp
+PRE_TARGETDEPS += $${WRKPREFIX}/Telegram/GeneratedFiles/style_auto.cpp $${WRKPREFIX}/Telegram/GeneratedFiles/style_auto.h $${WRKPREFIX}/Telegram/GeneratedFiles/style_classes.h $${WRKPREFIX}/Telegram/GeneratedFiles/lang_auto.h $${WRKPREFIX}/Telegram/GeneratedFiles/lang_auto.cpp
 
 unix {
     linux-g++:QMAKE_TARGET.arch = $$QMAKE_HOST.arch
@@ -265,7 +265,11 @@ CONFIG += precompile_header
 
 PRECOMPILED_HEADER = ./SourceFiles/stdafx.h
 
-QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-result -Wno-unused-parameter -Wno-unused-variable -Wno-switch -Wno-comment -Wno-unused-but-set-variable
+QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-result -Wno-unused-parameter -Wno-unused-variable -Wno-switch -Wno-comment 
+
+!freebsd{
+	QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-but-set-variable
+}
 
 CONFIG(release, debug|release) {
     QMAKE_CXXFLAGS_RELEASE -= -O2
@@ -278,6 +282,7 @@ freebsd {
 	INCLUDEPATH += /usr/local/include/qt5/QtGui/5.3.2/QtGui\
 		           /usr/local/include/qt5/QtCore/5.3.2/QtCore
 	
+	INCLUDEPATH += "/usr/local/include"
 	INCLUDEPATH += "/usr/local/include/gtk-2.0"
 	INCLUDEPATH += "/usr/local/include/glib-2.0"
 	INCLUDEPATH += "/usr/local/lib/glib-2.0/include/"

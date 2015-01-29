@@ -1464,6 +1464,8 @@ public:
 				return false;
 			} else if (_p) {
 				QTextCharFormat format;
+
+#if !defined(Q_OS_FREEBSD)
 				QTextItemInt gf(glyphs.mid(glyphsStart, glyphsEnd - glyphsStart),
 								&_e->fnt, engine.layoutData->string.unicode() + itemStart,
 								itemEnd - itemStart, engine.fontEngine(si), format);
@@ -1471,6 +1473,7 @@ public:
 				gf.width = itemWidth;
 				gf.justified = false;
 				gf.initWithScriptItem(si);
+#endif
 
 				if (_localFrom + itemStart < _selectedTo && _localFrom + itemEnd > _selectedFrom) {
 					QFixed selX = x, selWidth = itemWidth;
@@ -1511,8 +1514,12 @@ public:
 					if (rtl) selX = x + itemWidth - (selX - x) - selWidth;
 					_p->fillRect(QRectF(selX.toReal(), _y + _yDelta, selWidth.toReal(), _fontHeight), _textStyle->selectBG->b);
 				}
-
+#if !defined(Q_OS_FREEBSD)
 				_p->drawTextItem(QPointF(x.toReal(), textY), gf);
+#else
+				QString t = engine.layoutData->string.left(itemEnd).right(itemEnd - itemStart);
+				_p->drawText(QPointF(x.toReal(), textY),t);
+#endif
 			}
 
 			x += itemWidth;
