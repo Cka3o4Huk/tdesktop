@@ -45,7 +45,7 @@ style_auto_cpp.depends = ./Resources/style.txt ./Resources/style_classes.txt
 
 style_auto_h.target = ./GeneratedFiles/style_auto.h
 style_auto_h.depends = FORCE
-style_auto_h.commands = mkdir -p ./GeneratedFiles && $${METASTYLEPREFIX}/MetaStyle -classes_in ./Resources/style_classes.txt -classes_out ./GeneratedFiles/style_classes.h -styles_in ./Resources/style.txt -styles_out ./GeneratedFiles/style_auto.h -path_to_sprites ./../../Telegram/SourceFiles/art/
+style_auto_h.commands = mkdir -p ./GeneratedFiles && $${METASTYLEPREFIX}/MetaStyle -classes_in ./Resources/style_classes.txt -classes_out ./GeneratedFiles/style_classes.h -styles_in ./Resources/style.txt -styles_out ./GeneratedFiles/style_auto.h -path_to_sprites ./SourceFiles/art/
 style_auto_h.depends = ./Resources/style.txt ./Resources/style_classes.txt
 
 style_classes_h.target = ./GeneratedFiles/style_classes.h
