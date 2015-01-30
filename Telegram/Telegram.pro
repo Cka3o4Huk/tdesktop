@@ -29,40 +29,39 @@ linux|freebsd {
     HEADERS += ./SourceFiles/pspecific_linux.h
 }
 
-WRKPREFIX = ./../..
 METASTYLEPREFIX = ./../DebugStyle
 METALANGPREFIX  = ./../DebugLang
 
 freebsd {
-    WRKPREFIX = ./
+    WRKPREFIX   = ./
     METASTYLEPREFIX = /usr/local/bin
     METALANGPREFIX = /usr/local/bin
 }
 
-style_auto_cpp.target = $${WRKPREFIX}/Telegram/GeneratedFiles/style_auto.cpp
+style_auto_cpp.target = ./GeneratedFiles/style_auto.cpp
 style_auto_cpp.depends = FORCE
-style_auto_cpp.commands = mkdir -p $${WRKPREFIX}/Telegram/GeneratedFiles && $${METASTYLEPREFIX}/MetaStyle -classes_in $${WRKPREFIX}/Telegram/Resources/style_classes.txt -classes_out $${WRKPREFIX}/Telegram/GeneratedFiles/style_classes.h -styles_in $${WRKPREFIX}/Telegram/Resources/style.txt -styles_out $${WRKPREFIX}/Telegram/GeneratedFiles/style_auto.h -path_to_sprites $${WRKPREFIX}/Telegram/SourceFiles/art/
-style_auto_cpp.depends = $${WRKPREFIX}/Telegram/Resources/style.txt $${WRKPREFIX}/Telegram/Resources/style_classes.txt
+style_auto_cpp.commands = mkdir -p ./GeneratedFiles && $${METASTYLEPREFIX}/MetaStyle -classes_in ./Resources/style_classes.txt -classes_out ./GeneratedFiles/style_classes.h -styles_in ./Resources/style.txt -styles_out ./GeneratedFiles/style_auto.h -path_to_sprites ./SourceFiles/art/
+style_auto_cpp.depends = ./Resources/style.txt ./Resources/style_classes.txt
 
-style_auto_h.target = $${WRKPREFIX}/Telegram/GeneratedFiles/style_auto.h
+style_auto_h.target = ./GeneratedFiles/style_auto.h
 style_auto_h.depends = FORCE
-style_auto_h.commands = mkdir -p $${WRKPREFIX}/Telegram/GeneratedFiles && $${METASTYLEPREFIX}/MetaStyle -classes_in $${WRKPREFIX}/Telegram/Resources/style_classes.txt -classes_out $${WRKPREFIX}/Telegram/GeneratedFiles/style_classes.h -styles_in $${WRKPREFIX}/Telegram/Resources/style.txt -styles_out $${WRKPREFIX}/Telegram/GeneratedFiles/style_auto.h -path_to_sprites $${WRKPREFIX}/Telegram/SourceFiles/art/
-style_auto_h.depends = $${WRKPREFIX}/Telegram/Resources/style.txt $${WRKPREFIX}/Telegram/Resources/style_classes.txt
+style_auto_h.commands = mkdir -p ./GeneratedFiles && $${METASTYLEPREFIX}/MetaStyle -classes_in ./Resources/style_classes.txt -classes_out ./GeneratedFiles/style_classes.h -styles_in ./Resources/style.txt -styles_out ./GeneratedFiles/style_auto.h -path_to_sprites ./../../Telegram/SourceFiles/art/
+style_auto_h.depends = ./Resources/style.txt ./Resources/style_classes.txt
 
-style_classes_h.target = $${WRKPREFIX}/Telegram/GeneratedFiles/style_classes.h
+style_classes_h.target = ./GeneratedFiles/style_classes.h
 style_classes_h.depends = FORCE
-style_classes_h.commands = mkdir -p $${WRKPREFIX}/Telegram/GeneratedFiles && $${METASTYLEPREFIX}/MetaStyle -classes_in $${WRKPREFIX}/Telegram/Resources/style_classes.txt -classes_out $${WRKPREFIX}/Telegram/GeneratedFiles/style_classes.h -styles_in $${WRKPREFIX}/Telegram/Resources/style.txt -styles_out $${WRKPREFIX}/Telegram/GeneratedFiles/style_auto.h -path_to_sprites $${WRKPREFIX}/Telegram/SourceFiles/art/
-style_classes_h.depends = $${WRKPREFIX}/Telegram/Resources/style.txt $${WRKPREFIX}/Telegram/Resources/style_classes.txt
+style_classes_h.commands = mkdir -p ./GeneratedFiles && $${METASTYLEPREFIX}/MetaStyle -classes_in ./Resources/style_classes.txt -classes_out ./GeneratedFiles/style_classes.h -styles_in ./Resources/style.txt -styles_out ./GeneratedFiles/style_auto.h -path_to_sprites ./SourceFiles/art/
+style_classes_h.depends = ./Resources/style.txt ./Resources/style_classes.txt
 
-lang_auto_cpp.target = $${WRKPREFIX}/Telegram/GeneratedFiles/lang_auto.cpp
+lang_auto_cpp.target = ./GeneratedFiles/lang_auto.cpp
 lang_auto_cpp.depends = FORCE
-lang_auto_cpp.commands = mkdir -p $${WRKPREFIX}/Telegram/GeneratedFiles && $${METALANGPREFIX}/MetaLang -lang_in $${WRKPREFIX}/Telegram/Resources/lang.strings -lang_out $${WRKPREFIX}/Telegram/GeneratedFiles/lang_auto
-lang_auto_cpp.depends = $${WRKPREFIX}/Telegram/Resources/lang.strings
+lang_auto_cpp.commands = mkdir -p ./GeneratedFiles && $${METALANGPREFIX}/MetaLang -lang_in ./Resources/lang.strings -lang_out ./GeneratedFiles/lang_auto
+lang_auto_cpp.depends = ./Resources/lang.strings
 
-lang_auto_h.target = $${WRKPREFIX}/Telegram/GeneratedFiles/lang_auto.h
+lang_auto_h.target = ./GeneratedFiles/lang_auto.h
 lang_auto_h.depends = FORCE
-lang_auto_h.commands = mkdir -p $${WRKPREFIX}/Telegram/GeneratedFiles && $${METALANGPREFIX}/MetaLang -lang_in $${WRKPREFIX}/Telegram/Resources/lang.strings -lang_out $${WRKPREFIX}/Telegram/GeneratedFiles/lang_auto
-lang_auto_h.depends = $${WRKPREFIX}/Telegram/Resources/lang.strings
+lang_auto_h.commands = mkdir -p ./GeneratedFiles && $${METALANGPREFIX}/MetaLang -lang_in ./Resources/lang.strings -lang_out ./GeneratedFiles/lang_auto
+lang_auto_h.depends = ./Resources/lang.strings
 
 hook.depends = style_auto_cpp style_auto_h style_classes_h lang_auto_cpp lang_auto_h
 CONFIG(debug,debug|release):hook.target = Makefile.Debug
@@ -70,7 +69,7 @@ CONFIG(release,debug|release):hook.target = Makefile.Release
 
 QMAKE_EXTRA_TARGETS += style_auto_cpp style_auto_h style_classes_h lang_auto_cpp lang_auto_h hook
 
-PRE_TARGETDEPS += $${WRKPREFIX}/Telegram/GeneratedFiles/style_auto.cpp $${WRKPREFIX}/Telegram/GeneratedFiles/style_auto.h $${WRKPREFIX}/Telegram/GeneratedFiles/style_classes.h $${WRKPREFIX}/Telegram/GeneratedFiles/lang_auto.h $${WRKPREFIX}/Telegram/GeneratedFiles/lang_auto.cpp
+PRE_TARGETDEPS += ./GeneratedFiles/style_auto.cpp ./GeneratedFiles/style_auto.h ./GeneratedFiles/style_classes.h ./GeneratedFiles/lang_auto.h ./GeneratedFiles/lang_auto.cpp
 
 unix {
     linux-g++:QMAKE_TARGET.arch = $$QMAKE_HOST.arch
